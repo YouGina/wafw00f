@@ -139,24 +139,28 @@ class WAFW00F(waftoolsengine):
             # Checking for the Server header after sending malicious requests
             response = self.attackres
             normalserver = resp1.headers.get('Server')
-            attackresponse_server = response.headers.get('Server')
-            if attackresponse_server:
-                if attackresponse_server != normalserver:
-                    self.log.info('Server header changed, WAF possibly detected')
-                    self.log.debug('Attack response: %s' % attackresponse_server)
-                    self.log.debug('Normal response: %s' % normalserver)
-                    reason = reasons[1]
-                    reason += '\r\nThe server header for a normal response is "%s",' % normalserver
-                    reason += ' while the server header a response to an attack is "%s",' % attackresponse_server
-                    self.knowledge['generic']['reason'] = reason
-                    self.knowledge['generic']['found'] = True
-                    return True
+            if response is not None:
+                attackresponse_server = response.headers.get('Server')
+                if attackresponse_server:
+                    if attackresponse_server != normalserver:
+                        self.log.info('Server header changed, WAF possibly detected')
+                        self.log.debug('Attack response: %s' % attackresponse_server)
+                        self.log.debug('Normal response: %s' % normalserver)
+                        reason = reasons[1]
+                        reason += '\r\nThe server header for a normal response is "%s",' % normalserver
+                        reason += ' while the server header a response to an attack is "%s",' % attackresponse_server
+                        self.knowledge['generic']['reason'] = reason
+                        self.knowledge['generic']['found'] = True
+                        return True
 
         # If at all request doesn't go, press F
         except RequestBlocked:
             self.knowledge['generic']['reason'] = reasons[0]
             self.knowledge['generic']['found'] = True
             return True
+        except Exception:
+            # Generic exception, don't break
+            return False		
         return False
 
     def matchHeader(self, headermatch, attack=False):
