@@ -90,7 +90,7 @@ class WAFW00F(waftoolsengine):
             if 'User-Agent' in self.headers:
                 del self.headers['User-Agent']  # Deleting the user-agent key from object not dict.
             resp3 = self.customRequest(headers=def_headers)
-            if resp1.status_code != resp3.status_code:
+            if resp1 is not None and resp3 is not None and resp1.status_code != resp3.status_code:
                 self.log.info('Server returned a different response when request didn\'t contain the User-Agent header.')
                 reason = reasons[4]
                 reason += '\r\n'
